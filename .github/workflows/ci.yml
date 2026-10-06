@@ -1,4 +1,4 @@
-name:Basic repository check 
+name: Basic repository check 
 on: 
  pull_request: 
   branches: [main]
