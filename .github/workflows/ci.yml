@@ -6,12 +6,12 @@ on:
   branches: [main]
 
 jobs:
- repo-check: 
-  runs-on: ubuntu-latest
-  steps:
-   - name: Check out repository
-     uses: actions/checkout@v4 
+  repo-check: 
+      runs-on: ubuntu-latest
+      steps:
+         - name: Check out repository
+           uses: actions/checkout@v4 
 
-  - name: Verify REAME title 
-    run: grep -q'^# DevOps learning Lab' README.md
+         - name: Verify REAME title 
+           run: grep -q'^# DevOps Learning Lab' README.md
 
