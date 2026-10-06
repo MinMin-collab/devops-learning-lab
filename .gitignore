@@ -1,0 +1,7 @@
+# Local file to ignore
+.env
+*.log
+__pycache__
+.env
+venv
+.venv/
