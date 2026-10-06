@@ -13,5 +13,5 @@ jobs:
            uses: actions/checkout@v4 
 
          - name: Verify REAME title 
-           run: grep -q'^# DevOps Learning Lab' README.md
+           run: grep -q '^# DevOps Learning Lab' README.md
 
