@@ -17,6 +17,6 @@ class HealthHandler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = HTTPServer(("127.0.0.1", 8000), HealthHandler)
-    print("Server listening at http://127.0.0.1:8000")
+    server = HTTPServer(("0.0.0.0", 8000), HealthHandler)
+    print("Server listening on port 8000")
     server.serve_forever()
