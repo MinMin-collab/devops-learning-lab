@@ -59,7 +59,7 @@ jobs:
             uses: docker/metadata-action@v5
             with: 
                images: minmin203/devops-health-lab
-               tag: | 
+               tags: | 
                  type=raw,value=latest
                  type=sha,prefix=sha-
  
