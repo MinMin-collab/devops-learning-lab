@@ -54,7 +54,7 @@ jobs:
             run: bash scripts/smoke-test.sh "$TEST_IMAGE"
 
           - name: Generate release tags 
-            if: github.event_name == 'push' && github.ref == 'ref/heads/main'
+            if: github.event_name == 'push' && github.ref == 'refs/heads/main'
             id: meta
             uses: docker/metadata-action@v5
             with: 
@@ -64,17 +64,17 @@ jobs:
                  type=sha,prefix=sha-
  
           - name: Log in to Docker Hub
-            if: github.event_name == 'push'&& github.ref == 'ref/heads/main'
+            if: github.event_name == 'push'&& github.ref == 'refs/heads/main'
             uses: docker/login-action@v3 
             with: 
                username: ${{ secrets.DOCKERHUB_USERNAME }} 
                password: ${{ secrets.DOCKERHUB_TOKEN }} 
 
           - name: Push tested image 
-            if: github.event_name == 'push' &&  github.ref == 'ref/heads/main'
+            if: github.event_name == 'push' &&  github.ref == 'refs/heads/main'
             shell: bash
             env:
-              IMAGE_TAGS: ${{ steps.meta.outpush.tags }}
+              IMAGE_TAGS: ${{ steps.meta.outputs.tags }}
             run: | 
               set -euo pipefail
               test -n "$IMAGE_TAGS" 
