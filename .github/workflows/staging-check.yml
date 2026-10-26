@@ -1,0 +1,104 @@
+name: Verify staging deployment and rollback
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  staging-check:
+    name: Test deployment and automatic rollback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      BASELINE_IMAGE: minmin203/devops-health-lab@sha256:bc57e2a4b15925a6682e391fdd9a114698713720c7f30c8d92da49805a9369d4
+      CANDIDATE_IMAGE: minmin203/devops-health-lab@sha256:c7b5db432a527e02efbe499e5c98ad0615704faba58f0ce4d30308b60673a8c
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check tools and configuration
+        run: |
+          docker version
+          docker compose version
+          command -v flock
+
+          bash -n scripts/deploy-staging.sh
+
+          STAGING_IMAGE="$BASELINE_IMAGE" \
+            docker compose -p devops-staging \
+            -f compose.staging.yml config -q
+
+      - name: Deploy version A
+        run: bash scripts/deploy-staging.sh "$BASELINE_IMAGE"
+
+      - name: Deploy version B
+        run: bash scripts/deploy-staging.sh "$CANDIDATE_IMAGE"
+
+      - name: Verify automatic rollback
+        run: |
+          if DEPLOY_HEALTH_PATH=/health-wrong \
+            bash scripts/deploy-staging.sh "$BASELINE_IMAGE" \
+            > rollback-test.log 2>&1; then
+            result=0
+          else
+            result=$?
+          fi
+
+          cat rollback-test.log
+
+          echo "Deployment script exit code: $result"
+          test "$result" -eq 1
+
+          grep -Fx "ROLLBACK_OK: $CANDIDATE_IMAGE" rollback-test.log
+
+          export STAGING_IMAGE="$CANDIDATE_IMAGE"
+
+          cid="$(docker compose -p devops-staging \
+            -f compose.staging.yml ps -q health-api)"
+
+          test -n "$cid"
+
+          actual="$(docker inspect "$cid" --format \
+            '{{.Config.Image}}|{{.State.Running}}|{{.State.Health.Status}}')"
+
+          test "$actual" = "$CANDIDATE_IMAGE|true|healthy"
+
+          curl -fsS --max-time 3 http://127.0.0.1:8003/health \
+            | python3 -c 'import json, sys; assert json.load(sys.stdin) == {"status": "ok"}'
+
+          echo "PASS: Failed deployment restored version B."
+
+      - name: Show service logs
+        if: always()
+        env:
+          STAGING_IMAGE: ${{ env.BASELINE_IMAGE }}
+        run: |
+          docker compose -p devops-staging \
+            -f compose.staging.yml ps -a
+
+          docker compose -p devops-staging \
+            -f compose.staging.yml logs --tail 50
+
+      - name: Clean up staging test
+        if: always()
+        env:
+          STAGING_IMAGE: ${{ env.BASELINE_IMAGE }}
+        run: |
+          docker compose -p devops-staging \
+            -f compose.staging.yml down
