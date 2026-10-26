@@ -21,7 +21,7 @@ jobs:
 
     env:
       BASELINE_IMAGE: minmin203/devops-health-lab@sha256:bc57e2a4b15925a6682e391fdd9a114698713720c7f30c8d92da49805a9369d4
-      CANDIDATE_IMAGE: minmin203/devops-health-lab@sha256:c7b5db432a527e02efbe499e5c98ad0615704faba58f0ce4d30308b60673a8c
+      CANDIDATE_IMAGE: minmin203/devops-health-lab@sha256:c7b5db432a527e02efbe499e5c98ad0615704fabaa58f0ce4d30308b60673a8c
 
     steps:
       - name: Check out repository
