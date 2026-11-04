@@ -5,3 +5,7 @@ __pycache__
 .env
 venv
 .venv/
+/deploy/staging/.env* 
+!/deploy/staging/.env.example
+/deploy/staging/.deploy.lock
+
