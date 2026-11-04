@@ -23,6 +23,18 @@ jobs:
         
          - name: Run Python tests
            run: python -m unittest discover -s tests -v
+        
+         - name: Check deployment script Bash syntax
+           shell: bash
+           run: bash -n deploy/staging/deploy.sh
+
+         - name: Validate staging Compose configuration
+           shell: bash
+           run: |
+              env -u APP_IMAGE docker compose \
+                -f deploy/staging/compose.yml \
+                --env-file deploy/staging/.env.example \
+                config -q
    publish: 
        name: Build, smoke test and publish  
        needs: test 
