@@ -37,7 +37,7 @@ jobs:
                 config -q
 
          - name: Check version checker Python Syntax
-           run: python -m py_complie  deploy/staging/check_version.py 
+           run: python -m py_compile  deploy/staging/check_version.py 
 
    publish: 
        name: Build, smoke test and publish  
