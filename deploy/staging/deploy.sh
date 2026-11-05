@@ -19,8 +19,8 @@ if [[ ! "$NEW_IMAGE" =~ $IMAGE_PATTERN ]]; then
     exit 2
 fi
 
-[[ -f .env && -f compose.yml ]] || {
-    echo "Missing .env or compose.yml."
+[[ -f .env && -f compose.yml && -f check_version.py ]] || {
+    echo "Missing .env, compose.yml or check_version.py."
     exit 2
 }
 
