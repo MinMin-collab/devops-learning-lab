@@ -1,0 +1,35 @@
+services: 
+    health-api: 
+       image: "${STAGING_IMAGE:?Can khai bao STAGING_IMAGE}"
+
+       ports: 
+          - "127.0.0.1:8003:8000" 
+
+       environment:
+          PYTHONUNBUFFERED: "1"
+    
+       restart: unless-stopped 
+      
+       mem_limit: 256m 
+       cpus: 0.5 
+       
+       healthcheck: 
+             test: 
+                - CMD 
+                - python 
+                - -c 
+                - >- 
+                  import json;
+                  from urllib.request import urlopen;
+                  r = urlopen("http://127.0.0.1:8000/health", timeout=2); 
+                  assert r.status == 200;
+                  assert json.load(r) == {"status": "ok"} 
+             interval: 5s 
+             timeout: 3s 
+             retries: 5 
+             start_period: 5s 
+
+                  
+
+
+
