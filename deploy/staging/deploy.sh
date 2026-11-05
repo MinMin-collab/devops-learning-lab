@@ -61,37 +61,9 @@ check_version(){
        return 0 
     fi 
 
-    python3 - "$EXPECTED_VERSION" <<'PY' 
-import json
-import sys 
-import urllib.request
+    python3  ./check_version.py "$EXPECTED_VERSION"
+} 
 
-expected = sys.argv[1]
-
-try: 
-    with urllib.request.urlopen(
-         "http://127.0.0.1:8000/version", timeout=5
-    ) as response: 
-         status = response.status
-         body = json.load(response) 
-    
-    if status != 200 or not isinstance(body, dict): 
-       raise ValueError("Unexpected response from /version") 
-
-    actual = body.get("version") 
-
-    if actual != expected:  
-       raise ValueError( 
-           f"Version mismatch: expected {expected!r} , got{actual!r}" 
-       ) 
- 
-except Exception as error: 
-     print(f"Version check failed: {error}", file=sys.stderr) 
-     sys.exit(1) 
-     
-print(f"Version check passed: {actual}") 
-PY
-}
 dc .env config -q
 
 CURRENT_ID=$(dc .env ps -q app)
